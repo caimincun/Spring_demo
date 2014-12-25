@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.0.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+    <context:component-scan base-package="cn.springmvc">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+    </context:component-scan>
+
+    <mvc:annotation-driven content-negotiation-manager="contentManager"/>
+    <bean id="contentManager"
+          class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+        <property name="favorPathExtension" value="true"/>
+        <property name="ignoreAcceptHeader" value="true"/>
+        <property name="defaultContentType" value="text/html"/>
+        <property name="useJaf" value="false"/>
+        <property name="mediaTypes">
+            <map>
+                <entry key="json" value="application/json"/>
+                <entry key="html" value="text/html"/>
+                <entry key="xml" value="application/xml"/>
+            </map>
+        </property>
+    </bean>
+
+    <!-- 用于servlet/jsp的解析 -->
+    <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--自定义异常处理:SimpleMappingExceptionResolver-->
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <prop key="NumberFormatException">number</prop><!-- 表示当抛出NumberFormatException的时候就返回名叫number的视图 -->
+                <prop key="NullPointerException">null</prop>
+            </props>
+        </property>
+        <property name="defaultErrorView" value="exception"/><!-- 表示当抛出异常但没有在exceptionMappings里面找到对应的异常时 返回名叫exception的视图-->
+        <property name="statusCodes"><!-- 定义在发生异常时视图跟返回码的对应关系 -->
+            <props>
+                <prop key="number">500555</prop><!-- 表示在发生NumberFormatException时返回视图number，然后这里定义发生异常时视图number对应的HttpServletResponse的返回码是500 -->
+                <prop key="null">503</prop>
+            </props>
+        </property>
+        <property name="defaultStatusCode" value="404"/><!-- 表示在发生异常时默认的HttpServletResponse的返回码是多少，默认是200 -->
+    </bean>
+
+
+</beans>
